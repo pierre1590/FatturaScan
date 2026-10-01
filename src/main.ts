@@ -6,6 +6,7 @@ import {
   Menu,
   type MenuItemConstructorOptions,
 } from 'electron';
+import { autoUpdater } from 'electron-updater';
 
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -18,6 +19,75 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 const pdfSelezionati = new Set<string>();
+
+let verificaAggiornamentiInCorso = false;
+
+function finestraPrincipale(): BrowserWindow | undefined {
+  return (
+    BrowserWindow.getFocusedWindow() ??
+    BrowserWindow.getAllWindows()[0]
+  );
+}
+
+async function mostraAggiornamenti(
+  message: string,
+  detail?: string,
+  type: 'info' | 'error' = 'info',
+): Promise<void> {
+  const opzioni = {
+    type,
+    title: 'Aggiornamenti FatturaScan',
+    message,
+    detail,
+    buttons: ['Chiudi'],
+  };
+
+  const finestra = finestraPrincipale();
+
+  if (finestra) {
+    await dialog.showMessageBox(finestra, opzioni);
+  } else {
+    await dialog.showMessageBox(opzioni);
+  }
+}
+
+async function verificaAggiornamenti(): Promise<void> {
+  if (verificaAggiornamentiInCorso) return;
+
+  if (!app.isPackaged || process.platform !== 'win32') {
+    await mostraAggiornamenti(
+      'Verifica disponibile solo nell’app Windows installata',
+      'Non è possibile provare gli aggiornamenti con npm start.',
+    );
+    return;
+  }
+
+  verificaAggiornamentiInCorso = true;
+
+  try {
+    const risultato = await autoUpdater.checkForUpdates();
+
+    if (!risultato) {
+      await mostraAggiornamenti(
+        'Impossibile eseguire la verifica degli aggiornamenti',
+        'Controlla di aver avviato l’app installata con NSIS.',
+        'error',
+      );
+      return;
+    }
+
+    // La verifica produce uno dei due eventi: update-available o update-not-available.
+    // I messaggi all’utente vengono gestiti dai relativi listener qui sotto.
+  } catch (errore) {
+    await mostraAggiornamenti(
+      'Verifica degli aggiornamenti non riuscita',
+      errore instanceof Error ? errore.message : String(errore),
+      'error',
+    );
+  } finally {
+    verificaAggiornamentiInCorso = false;
+  }
+}
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -39,41 +109,40 @@ function createWindow(): void {
 function impostaMenuItaliano(): void {
   const modello: MenuItemConstructorOptions[] = [
     {
-      label: 'File',
+      label: "File",
+      submenu: [{ label: "Esci", role: "quit" }],
+    },
+    {
+      label: "Modifica",
       submenu: [
-        { label: 'Esci', role: 'quit' },
+        { label: "Annulla", role: "undo" },
+        { label: "Ripristina", role: "redo" },
+        { type: "separator" },
+        { label: "Taglia", role: "cut" },
+        { label: "Copia", role: "copy" },
+        { label: "Incolla", role: "paste" },
+        { type: "separator" },
+        { label: "Seleziona tutto", role: "selectAll" },
       ],
     },
     {
-      label: 'Modifica',
-      submenu: [
-        { label: 'Annulla', role: 'undo' },
-        { label: 'Ripristina', role: 'redo' },
-        { type: 'separator' },
-        { label: 'Taglia', role: 'cut' },
-        { label: 'Copia', role: 'copy' },
-        { label: 'Incolla', role: 'paste' },
-        { type: 'separator' },
-        { label: 'Seleziona tutto', role: 'selectAll' },
-      ],
-    },
-    {
-      label: 'Aiuto',
+      label: "Aiuto",
       submenu: [
         {
-          label: 'Informazioni su FatturaScan',
+          label: "Informazioni su FatturaScan",
           click: () => {
             const finestra =
               BrowserWindow.getFocusedWindow() ??
               BrowserWindow.getAllWindows()[0];
 
             const opzioni = {
-              type: 'info' as const,
-              title: 'Informazioni su FatturaScan',
+              type: "info" as const,
+              title: "Informazioni su FatturaScan",
               message: app.getName(),
-              detail: `Versione ${app.getVersion()}\n` + ` Autore: Piero Sabino`,
-              
-              buttons: ['Chiudi'],
+              detail:
+                `Versione ${app.getVersion()}\n` + ` Autore: Piero Sabino`,
+
+              buttons: ["Chiudi"],
             };
 
             if (finestra) {
@@ -84,29 +153,9 @@ function impostaMenuItaliano(): void {
           },
         },
         {
-          label: 'Verifica aggiornamenti',
+          label: "Verifica aggiornamenti",
           click: () => {
-            const finestra =
-              BrowserWindow.getFocusedWindow() ??
-              BrowserWindow.getAllWindows()[0];
-
-            const opzioni = {
-              type: 'info' as const,
-              title: 'Aggiornamenti',
-              message: 'Verifica aggiornamenti non ancora configurata',
-              detail:
-                'Versione installata: ' +
-                app.getVersion() +
-                '. Per controllare nuovi rilasci occorre configurare ' +
-                'una fonte ufficiale di aggiornamento.',
-              buttons: ['Chiudi'],
-            };
-
-            if (finestra) {
-              void dialog.showMessageBox(finestra, opzioni);
-            } else {
-              void dialog.showMessageBox(opzioni);
-            }
+            void verificaAggiornamenti();
           },
         },
       ],
@@ -269,7 +318,43 @@ if (bytes.byteLength === 0) {
   },
 );
 
+let lottoDaProteggere = true;
+
+ipcMain.on('fatture:stato-lotto', (evento, valore: unknown) => {
+  if (!richiestaValida(evento) || typeof valore !== 'boolean') {
+    return;
+  }
+
+  lottoDaProteggere = valore;
+});
+
+
+autoUpdater.on('update-available', (info) => {
+  void mostraAggiornamenti(
+    `È disponibile FatturaScan ${info.version}`,
+    'Il download e l’installazione non sono ancora abilitati in questa versione di prova.',
+  );
+});
+
+autoUpdater.on('update-not-available', () => {
+  void mostraAggiornamenti(
+    'FatturaScan è aggiornata',
+    `Versione installata: ${app.getVersion()}.`,
+  );
+});
+
 app.whenReady().then(() => {
+  if (app.isPackaged && process.platform === 'win32') {
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'pierre1590',
+    repo: 'FatturaScan',
+  });
+
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
+}
+
   impostaMenuItaliano();
   createWindow();
 

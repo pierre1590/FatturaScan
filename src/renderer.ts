@@ -56,6 +56,7 @@ declare global {
         dati: Uint8Array,
         nomeFile: string,
       ) => Promise<string | null>;
+      statoLotto: (daProteggere: boolean) => void;
     };
   }
 }
@@ -118,6 +119,13 @@ const formatoEuro = new Intl.NumberFormat('it-IT', {
   style: 'currency',
   currency: 'EUR',
 });
+
+
+function comunicaStatoLotto(): void {
+  window.fattureAPI.statoLotto(
+    fatture.length > 0,
+  );
+}
 
 function nomeDaPercorso(percorso: string): string {
   return percorso.split(/[\\/]/).pop() || percorso;
@@ -413,7 +421,7 @@ bottonePDF.addEventListener('click', async () => {
           paginaFinale: gruppo.paginaFinale,
           confineIncerto: gruppo.confineIncerto,
         });
-
+        comunicaStatoLotto();
         fattureAggiunte++;
       }
 
@@ -451,6 +459,7 @@ bottonePDF.addEventListener('click', async () => {
   } finally {
     bottonePDF.disabled = false;
   }
+  comunicaStatoLotto();
 });
 
 form.addEventListener('submit', (evento) => {
@@ -686,6 +695,7 @@ bottoneEsporta.addEventListener('click', async () => {
 });
 
 bottoneNuovoLotto.addEventListener('click', () => {
+  
   if (fatture.length > 0) {
     const nonConfermate = fatture.filter(
       (fattura) => !fattura.confermata,
@@ -709,7 +719,7 @@ bottoneNuovoLotto.addEventListener('click', () => {
   fatturaSelezionata = null;
   identitaLotto = null;
   lottoEsportato = false;
-
+  comunicaStatoLotto();
   campoCliente.value = '';
   campoCliente.readOnly = false;
 
@@ -734,6 +744,7 @@ bottoneNuovoLotto.addEventListener('click', () => {
 
   aggiornaTabella();
   campoCliente.focus();
-});
 
+});
 aggiornaTabella();
+comunicaStatoLotto();

@@ -4,16 +4,17 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('fattureAPI', {
+contextBridge.exposeInMainWorld("fattureAPI", {
   selezionaPDF: (): Promise<string[]> =>
-    ipcRenderer.invoke('fatture:seleziona-pdf'),
+    ipcRenderer.invoke("fatture:seleziona-pdf"),
 
   leggiPDF: (percorso: string): Promise<Uint8Array> =>
-    ipcRenderer.invoke('fatture:leggi-pdf', percorso),
+    ipcRenderer.invoke("fatture:leggi-pdf", percorso),
 
-  salvaExcel: (
-    dati: Uint8Array,
-    nomeFile: string,
-  ): Promise<string | null> =>
-    ipcRenderer.invoke('fatture:salva-excel', dati, nomeFile),
+  salvaExcel: (dati: Uint8Array, nomeFile: string): Promise<string | null> =>
+    ipcRenderer.invoke("fatture:salva-excel", dati, nomeFile),
+
+  statoLotto: (daProteggere: boolean): void => {
+    ipcRenderer.send("fatture:stato-lotto", daProteggere);
+  },
 });
