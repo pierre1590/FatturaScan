@@ -106,6 +106,18 @@ function createWindow(): void {
     },
   });
 
+  mainWindow.webContents.on('did-start-navigation', () => {
+    lottoDaProteggere = true;
+  });
+
+  mainWindow.webContents.on('render-process-gone', () => {
+    lottoDaProteggere = true;
+  });
+
+  mainWindow.on('closed', () => {
+    lottoDaProteggere = true;
+  });
+
   void mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
 
