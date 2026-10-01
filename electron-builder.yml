@@ -1,0 +1,18 @@
+appId: it.piero.fatturascan
+productName: FatturaScan
+
+directories:
+  output: dist-nsis
+
+win:
+  target: nsis
+  icon: assets/fatturascan.ico
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  installerIcon: assets/fatturascan.ico
+  uninstallerIcon: assets/fatturascan.ico

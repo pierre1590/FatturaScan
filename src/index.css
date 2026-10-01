@@ -1,0 +1,309 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f3f6f9;
+  color: #1c2a38;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 36px 24px;
+}
+
+header {
+  margin-bottom: 28px;
+}
+
+header h1 {
+  margin: 6px 0;
+  font-size: 32px;
+}
+
+header p {
+  color: #68798a;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #13795b;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card {
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px solid #e0e7ed;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(28, 42, 56, 0.05);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+  color: #405163;
+  font-weight: 600;
+}
+
+input {
+  padding: 10px 12px;
+  border: 1px solid #cbd5df;
+  border-radius: 8px;
+}
+
+button {
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #13795b;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0e634a;
+}
+
+.hint {
+  margin-bottom: 0;
+  color: #6b7a89;
+  font-size: 14px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+th,
+td {
+  padding: 13px;
+  border-bottom: 1px solid #e7edf2;
+  text-align: left;
+}
+
+th {
+  background: #f7f9fb;
+  font-size: 13px;
+}
+
+.empty {
+  color: #7d8994;
+  text-align: center;
+}
+
+.status {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #fff2d9;
+  color: #986000;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#scheda-revisione[hidden] {
+  display: none;
+}
+
+#documento-selezionato {
+  color: #617181;
+  overflow-wrap: anywhere;
+}
+
+#form-revisione .fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+}
+
+.pulsante-documento {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #13795b;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.pulsante-documento:hover {
+  background: transparent;
+  color: #0b533e;
+}
+
+.riga-selezionabile.selezionata {
+  background: #eef8f2;
+}
+
+.status.confermata {
+  background: #dff5e8;
+  color: #16683c;
+}
+
+#controllo-importi.errore {
+  color: #aa3030;
+  font-weight: 600;
+}
+
+#controllo-importi.successo {
+  color: #16683c;
+  font-weight: 600;
+}
+
+@media (max-width: 650px) {
+  #form-revisione .fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+#scheda-revisione[hidden] {
+  display: none;
+}
+
+.documento-selezionato {
+  color: #68798a;
+  overflow-wrap: anywhere;
+}
+
+.campi-importo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+}
+
+.pulsante-documento {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #13795b;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.pulsante-documento:hover {
+  background: transparent;
+  color: #0e634a;
+}
+
+.riga-selezionabile.selezionata {
+  background: #effaf3;
+}
+
+.status.confermata {
+  background: #e1f6e8;
+  color: #176a41;
+}
+
+#controllo-importi.errore {
+  color: #a52e2e;
+  font-weight: 600;
+}
+
+#controllo-importi.successo {
+  color: #177147;
+  font-weight: 600;
+}
+
+@media (max-width: 650px) {
+  .campi-importo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.testo-pdf {
+  margin: 18px 0 24px;
+  padding: 16px;
+  border: 1px solid #e0e7ed;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.testo-pdf h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+#stato-lettura {
+  color: #617181;
+}
+
+#testo-letto {
+  max-height: 240px;
+  margin-bottom: 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+
+.campo-cliente {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 420px;
+  margin: 1rem 0;
+}
+
+.campo-cliente label {
+  font-weight: 700;
+}
+
+.campo-cliente input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.azioni-riepilogo {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.griglia-lotto {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(120px, 1fr);
+  gap: 16px;
+  max-width: 520px;
+}
+
+.griglia-lotto > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.griglia-lotto input {
+  width: 100%;
+  box-sizing: border-box;
+}

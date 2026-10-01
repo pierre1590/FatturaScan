@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FatturaScan</title>
+  </head>
+
+  <body>
+    <main class="app">
+      <header>
+        <h1>FatturaScan</h1>
+        <p>Acquisisce fatture scansionate e prepara il riepilogo Excel.</p>
+      </header>
+
+      <section class="card">
+        <h2>Nuovo lotto</h2>
+
+        <div class="griglia-lotto">
+          <div>
+            <label for="cliente">Cliente</label>
+            <input
+              id="cliente"
+              type="text"
+              placeholder="Nome del cliente"
+              autocomplete="off"
+            />
+          </div>
+
+          <div>
+            <label for="anno">Anno</label>
+            <input id="anno" type="number" value="2025" min="2000" max="2100" />
+          </div>
+        </div>
+
+        <p id="messaggio" aria-live="polite">Nessun PDF selezionato.</p>
+
+        <button id="seleziona-pdf" type="button">Seleziona fatture PDF</button>
+        <button id="nuovo-lotto" type="button">
+            Nuovo lotto
+        </button>
+        <p class="nota">
+          Puoi selezionare più PDF contemporaneamente. L’app proporrà gli
+          importi letti dalle fatture, che potrai poi correggere.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Riepilogo fatture</h2>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Documento</th>
+                <th>Imponibile</th>
+                <th>C.A.P.</th>
+                <th>Bollo</th>
+                <th>Totale Riga</th>
+                <th>Stato</th>
+              </tr>
+            </thead>
+
+            <tbody id="tabella-fatture">
+              <tr>
+                <td colspan="6" class="empty">Nessuna fattura inserita.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <button id="conferma-tutte" type="button">
+              Conferma tutte le fatture valide
+          </button>
+
+          <div class="azioni-riepilogo">
+            <button id="esporta-excel" type="button">
+              Esporta fatture confermate in Excel
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="scheda-revisione" hidden>
+        <h2>Revisione fattura</h2>
+
+        <p id="documento-selezionato" class="documento-selezionato">
+          Nessun documento selezionato.
+        </p>
+
+        <div class="testo-pdf">
+          <h3>Testo letto dal documento</h3>
+          <p id="stato-lettura" aria-live="polite">
+            Seleziona una fattura per avviare la lettura.
+          </p>
+          <pre id="testo-letto"></pre>
+        </div>
+
+        <form id="form-revisione">
+          <div class="fields campi-importo">
+            <label>
+              Imponibile (€)
+              <input
+                id="imponibile"
+                type="text"
+                inputmode="decimal"
+                placeholder="Es. 105,84"
+                autocomplete="off"
+              />
+            </label>
+
+            <label>
+              C.A.P. (€)
+              <input
+                id="cap"
+                type="text"
+                inputmode="decimal"
+                placeholder="Es. 2,16"
+                autocomplete="off"
+              />
+            </label>
+
+            <label>
+              Bollo (€)
+              <input
+                id="bollo"
+                type="text"
+                inputmode="decimal"
+                placeholder="0,00 se assente"
+                autocomplete="off"
+              />
+            </label>
+
+            <label>
+              Totale riga (€)
+              <input
+                id="totale"
+                type="text"
+                inputmode="decimal"
+                placeholder="Es. 110,00"
+                autocomplete="off"
+              />
+            </label>
+          </div>
+
+          <p id="controllo-importi" aria-live="polite"></p>
+
+          <button type="submit">Conferma fattura</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
