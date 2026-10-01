@@ -21,6 +21,9 @@ if (!app.requestSingleInstanceLock()) {
 const pdfSelezionati = new Set<string>();
 
 let verificaAggiornamentiInCorso = false;
+let downloadAggiornamentoInCorso = false;
+let aggiornamentoScaricato = false;
+let dialogoDownloadAperto = false;
 
 function finestraPrincipale(): BrowserWindow | undefined {
   return (
@@ -330,9 +333,63 @@ ipcMain.on('fatture:stato-lotto', (evento, valore: unknown) => {
 
 
 autoUpdater.on('update-available', (info) => {
+  void (async () => {
+    if (
+      dialogoDownloadAperto ||
+      downloadAggiornamentoInCorso ||
+      aggiornamentoScaricato
+    ) {
+      return;
+    }
+
+    dialogoDownloadAperto = true;
+
+    try {
+      const opzioni = {
+        type: 'question' as const,
+        title: 'Aggiornamenti FatturaScan',
+        message: `È disponibile FatturaScan ${info.version}`,
+        detail: 'Vuoi scaricare l’aggiornamento adesso? L’app resterà aperta.',
+        buttons: ['Scarica', 'Più tardi'],
+        defaultId: 0,
+        cancelId: 1,
+        noLink: true,
+      };
+
+      const finestra = finestraPrincipale();
+      const scelta = finestra
+        ? await dialog.showMessageBox(finestra, opzioni)
+        : await dialog.showMessageBox(opzioni);
+
+      if (scelta.response !== 0 || downloadAggiornamentoInCorso) {
+        return;
+      }
+
+      downloadAggiornamentoInCorso = true;
+
+      try {
+        await autoUpdater.downloadUpdate();
+      } catch (errore) {
+        await mostraAggiornamenti(
+          'Download dell’aggiornamento non riuscito',
+          errore instanceof Error ? errore.message : String(errore),
+          'error',
+        );
+      } finally {
+        downloadAggiornamentoInCorso = false;
+      }
+    } finally {
+      dialogoDownloadAperto = false;
+    }
+  })();
+});
+autoUpdater.on('update-downloaded', (info) => {
+  aggiornamentoScaricato = true;
+
   void mostraAggiornamenti(
-    `È disponibile FatturaScan ${info.version}`,
-    'Il download e l’installazione non sono ancora abilitati in questa versione di prova.',
+    `FatturaScan ${info.version} è stata scaricata`,
+    'Per ora l’installazione automatica è disabilitata. ' +
+      'Non chiudere l’app aspettandoti che si aggiorni da sola.',
   );
 });
 
