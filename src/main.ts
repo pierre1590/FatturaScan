@@ -24,6 +24,7 @@ let verificaAggiornamentiInCorso = false;
 let downloadAggiornamentoInCorso = false;
 let aggiornamentoScaricato = false;
 let dialogoDownloadAperto = false;
+let versioneScaricata: string | null = null;
 
 function finestraPrincipale(): BrowserWindow | undefined {
   return (
@@ -54,6 +55,59 @@ async function mostraAggiornamenti(
   }
 }
 
+async function installaAggiornamento(
+  versione: string,
+): Promise<void> {
+  if (
+    lottoDaProteggere ||
+    !aggiornamentoScaricato ||
+    versioneScaricata !== versione
+  ) {
+    await mostraAggiornamenti(
+      'Installazione rimandata',
+      'Il lotto non è vuoto oppure l’aggiornamento non è pronto.',
+    );
+    return;
+  }
+
+  installazioneAggiornamentoAutorizzata = true;
+  autoUpdater.quitAndInstall();
+}
+
+async function proponiInstallazione(versione: string): Promise<void> {
+  if (lottoDaProteggere) {
+    await mostraAggiornamenti(
+      `FatturaScan ${versione} è pronta`,
+      'L’aggiornamento è scaricato. Prima conferma ed esporta ' +
+        'le fatture, quindi premi «Nuovo lotto» e torna in ' +
+        'Aiuto → Verifica aggiornamenti.',
+    );
+    return;
+  }
+
+  const opzioni = {
+    type: 'question' as const,
+    title: 'Aggiornamenti FatturaScan',
+    message: `FatturaScan ${versione} è pronta`,
+    detail: 'Vuoi installare l’aggiornamento e riavviare ora?',
+    buttons: ['Installa e riavvia', 'Più tardi'],
+    defaultId: 1,
+    cancelId: 1,
+    noLink: true,
+  };
+
+  const finestra = finestraPrincipale();
+  const scelta = finestra
+    ? await dialog.showMessageBox(finestra, opzioni)
+    : await dialog.showMessageBox(opzioni);
+
+  if (scelta.response !== 0) return;
+
+  await installaAggiornamento(versione);
+}
+
+
+
 async function verificaAggiornamenti(): Promise<void> {
   if (verificaAggiornamentiInCorso) return;
 
@@ -64,6 +118,11 @@ async function verificaAggiornamenti(): Promise<void> {
     );
     return;
   }
+
+  if (aggiornamentoScaricato && versioneScaricata) {
+  await proponiInstallazione(versioneScaricata);
+  return;
+}
 
   verificaAggiornamentiInCorso = true;
 
@@ -113,6 +172,33 @@ function createWindow(): void {
   mainWindow.webContents.on('render-process-gone', () => {
     lottoDaProteggere = true;
   });
+
+  mainWindow.on('close', (evento) => {
+  if (installazioneAggiornamentoAutorizzata) {
+    return;
+  }
+
+  if (!lottoDaProteggere) {
+    return;
+  }
+
+  const scelta = dialog.showMessageBoxSync(mainWindow, {
+    type: 'warning',
+    title: 'Lotto non completato',
+    message: 'Hai un lotto con fatture da confermare o esportare.',
+    detail:
+      'Conferma ed esporta le fatture oppure usa «Nuovo lotto» ' +
+        'prima di chiudere FatturaScan.',
+    buttons: ['Annulla chiusura', 'Chiudi comunque'],
+    defaultId: 0,
+    cancelId: 0,
+    noLink: true,
+  });
+
+  if (scelta === 0) {
+    evento.preventDefault();
+  }
+});
 
   mainWindow.on('closed', () => {
     lottoDaProteggere = true;
@@ -334,6 +420,7 @@ if (bytes.byteLength === 0) {
 );
 
 let lottoDaProteggere = true;
+let installazioneAggiornamentoAutorizzata = false;
 
 ipcMain.on('fatture:stato-lotto', (evento, valore: unknown) => {
   if (!richiestaValida(evento) || typeof valore !== 'boolean') {
@@ -395,14 +482,12 @@ autoUpdater.on('update-available', (info) => {
     }
   })();
 });
+
+
 autoUpdater.on('update-downloaded', (info) => {
   aggiornamentoScaricato = true;
-
-  void mostraAggiornamenti(
-    `FatturaScan ${info.version} è stata scaricata`,
-    'Per ora l’installazione automatica è disabilitata. ' +
-      'Non chiudere l’app aspettandoti che si aggiorni da sola.',
-  );
+  versioneScaricata = info.version;
+  void proponiInstallazione(info.version);
 });
 
 autoUpdater.on('update-not-available', () => {
