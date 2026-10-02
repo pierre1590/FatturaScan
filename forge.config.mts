@@ -15,7 +15,10 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
      icon: './assets/fatturascan',
-     extraResource: ['./assets/fatturascan.ico'],
+     extraResource: [
+       './assets/fatturascan.ico',
+       './app-update.yml',
+     ],
   },
   rebuildConfig: {},
   makers: [

@@ -1,0 +1,4 @@
+provider: github
+owner: pierre1590
+repo: FatturaScan
+updaterCacheDirName: fatturascan-updater

@@ -17,6 +17,7 @@ nsis:
   createStartMenuShortcut: true
   installerIcon: assets/fatturascan.ico
   uninstallerIcon: assets/fatturascan.ico
+  artifactName: ${productName}-Setup-${version}.${ext}
 
 publish:
   provider: github
