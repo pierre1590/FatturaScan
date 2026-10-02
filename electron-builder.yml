@@ -5,7 +5,8 @@ directories:
   output: dist-nsis
 
 win:
-  target: nsis
+  target:
+    - nsis
   icon: assets/fatturascan.ico
 
 nsis:
@@ -16,3 +17,8 @@ nsis:
   createStartMenuShortcut: true
   installerIcon: assets/fatturascan.ico
   uninstallerIcon: assets/fatturascan.ico
+
+publish:
+  provider: github
+  owner: pierre1590
+  repo: FatturaScan

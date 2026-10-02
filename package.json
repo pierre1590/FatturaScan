@@ -1,7 +1,7 @@
 {
   "name": "fatturascan",
   "productName": "FatturaScan",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "FatturaScan — Acquisisce fatture scansionate, ne estrae gli importi e crea un riepilogo Excel.",
   "keywords": [
@@ -67,6 +67,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "pdfjs-dist": "^6.3.289",
     "tesseract.js": "^7.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
